@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm p-4">
+        <h2 class="mb-3">Booking Confirmation</h2>
+
+        <p><strong>Instructor:</strong> {{ booking.instructor.get_full_name }}</p>
+        <p><strong>Date:</strong> {{ booking.date }}</p>
+        <p><strong>Time:</strong> {{ booking.time }}</p>
+        <p><strong>Status:</strong> <span class="badge bg-success">{{ booking.status }}</span></p>
+
+        <hr>
+        <!-- Stripe payment button (optional) -->
+        {% if not booking.payment or booking.payment.status != "paid" %}
+            <a href="{% url 'create_checkout_session' booking.id %}" class="btn btn-success">
+                Pay Now
+            </a>
+        {% else %}
+            <span class="badge bg-success">Paid</span>
+        {% endif %}
+
+        <a href="{% url 'student_dashboard' %}" class="btn btn-secondary ms-2">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

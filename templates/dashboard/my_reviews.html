@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% include 'dashboard/navbar.html' %}
+
+
+<div class="container mt-5">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-primary mb-0">⭐ My Reviews</h3>
+
+    </div>
+
+
+    <!-- Card wrapper -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Student</th>
+                        <th>Rating</th>
+                        <th>Comment</th>
+                        <th>Created</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for review in reviews %}
+                    <tr>
+                        <td>{{ review.booking.date|date:"M d, Y" }} <br>
+                            <small class="text-muted">{{ review.booking.time|time:"H:i" }}</small>
+                        </td>
+                        <td>{{ review.booking.student.get_full_name }}</td>
+                        <td>
+                            <span class="badge bg-warning text-dark fs-6">★ {{ review.rating }}/5</span>
+                        </td>
+                        <td class="text-muted">{{ review.comment|default:"—" }}</td>
+                        <td>
+                            <small class="text-muted">{{ review.created_at|date:"M d, Y H:i" }}</small>
+                        </td>
+                        <td class="text-center">
+                            <a href="{% url 'edit_review' review.id %}" 
+                               class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1">
+                                Edit
+                            </a>
+                            <form method="post" 
+                                  action="{% url 'delete_review' review.id %}" 
+                                  class="d-inline">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                        onclick="return confirm('Delete this Review?');">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            No reviews yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

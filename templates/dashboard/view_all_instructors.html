@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% include 'dashboard/navbar.html' %}
+
+<div class="container mt-5">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-primary mb-0">👨‍🏫 All Instructors</h3>
+    </div>
+
+    <!-- Instructor Cards -->
+    <div class="row g-3">
+        {% for instructor in instructors %}
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ instructor.get_full_name|default:instructor.username }}</h5>
+                    <p class="card-text mb-1"><strong>Username:</strong> {{ instructor.username }}</p>
+                    <p class="card-text mb-1"><strong>Email:</strong> {{ instructor.email }}</p>
+                </div>
+                <div class="card-footer bg-white text-end">
+                    <a href="{% url 'instructor_profile' instructor.id %}" 
+                       class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                        View Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                No instructors found.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

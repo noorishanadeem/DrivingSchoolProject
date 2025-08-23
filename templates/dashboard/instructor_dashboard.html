@@ -1,0 +1,237 @@
+<!-- navbar -->
+{% include 'dashboard/navbar.html' %}
+
+<!-- Logout Button -->
+<div class="d-flex justify-content-end me-3 mt-2">
+    <a href="{% url 'logout' %}" class="btn btn-outline-danger">Logout</a>
+</div>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Instructor Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <style>
+        .small-card {
+            height: 100px;
+            transition: transform 0.2s;
+        }
+        .small-card:hover {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+<div class="container mt-4">
+    <h1>Instructor Dashboard</h1>
+    <p>Welcome, {{ request.user.get_full_name }}. This will be your dashboard for managing lessons, calendar and more</p>
+
+    <!-- Pending Reviews Alert -->
+    {% if pending_count %}
+    <div class="card border-0 shadow-sm rounded-4 mt-4">
+        <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-center">
+            
+            <!-- Left text -->
+            <div class="mb-2 mb-md-0">
+                <h6 class="mb-1 fw-bold text-primary">
+                    📌 Pending Reviews
+                </h6>
+                <p class="mb-0 text-muted">
+                    <strong>{{ pending_count }}</strong> completed lesson{{ pending_count|pluralize }} 
+                    need{{ pending_count|pluralize:"s" }} your review.
+                </p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex align-items-center">
+                {% if pending_reviews.0.status == "completed" %}
+                    <a href="{% url 'leave_review' pending_reviews.0.id %}" 
+                    class="btn btn-sm btn-primary rounded-pill px-3 me-2">
+                        ✍️ Review Latest
+                    </a>
+                {% endif %}
+
+                <!-- Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill dropdown-toggle px-3" 
+                            type="button" data-bs-toggle="dropdown">
+                        Pick Lesson
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        {% for b in pending_reviews|slice:"10" %}
+                            {% if b.status == "completed" %}
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'leave_review' b.id %}">
+                                        📅 {{ b.date }} {{ b.time }} — {{ b.student.get_full_name|default:b.student.username }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Summary Cards -->
+<div class="container mt-4">
+    <div class="row g-3">
+        <div class="col-6 col-md-3">
+            <a href="{% url 'instructor_lessons_list' 'total' %}" class="text-decoration-none">
+                <div class="card bg-primary text-white text-center shadow-sm rounded-4 small-card">
+                    <div class="card-body">
+                        <h6>Total Lessons</h6>
+                        <p class="fs-5 mb-0">{{ total_bookings }}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{% url 'instructor_lessons_list' 'upcoming' %}" class="text-decoration-none">
+                <div class="card bg-secondary text-white text-center shadow-sm rounded-4 small-card">
+                    <div class="card-body">
+                        <h6>Upcoming</h6>
+                        <p class="fs-5 mb-0">{{ upcoming_lessons }}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{% url 'instructor_lessons_list' 'completed' %}" class="text-decoration-none">
+                <div class="card bg-success text-white text-center shadow-sm rounded-4 small-card">
+                    <div class="card-body">
+                        <h6>Completed</h6>
+                        <p class="fs-5 mb-0">{{ completed_lessons }}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{% url 'instructor_lessons_list' 'cancelled' %}" class="text-decoration-none">
+                <div class="card bg-danger text-white text-center shadow-sm rounded-4 small-card">
+                    <div class="card-body">
+                        <h6>Cancelled</h6>
+                        <p class="fs-5 mb-0">{{ cancelled_lessons }}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<br/>
+
+<!-- Today's Lessons -->
+<div class="container mt-4">
+    <h4>Today's Lessons</h4>
+    <table class="table table-bordered table-striped align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Time</th>
+                <th>Student</th>
+                <th>Status</th>
+                <th>Actions</th>
+                <th>Rating/Review</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lesson in todays_lessons %}
+            <tr>
+                <td>{{ lesson.time }}</td>
+                <td>{{ lesson.student.get_full_name|default:lesson.student.username }}</td>
+                <td>
+                    <span class="badge 
+                        {% if lesson.status == 'booked' %} bg-warning text-dark
+                        {% elif lesson.status == 'completed' %} bg-success
+                        {% elif lesson.status == 'cancelled' %} bg-danger
+                        {% else %} bg-secondary{% endif %}">
+                        {{ lesson.status|capfirst }}
+                    </span>
+                </td>
+                <td>
+                    {% if lesson.status == "completed" %}
+                        {% if lesson.reviews.exists %}
+                            <span class="text-muted small">Review Added</span>
+                            <a href="{% url 'edit_review' lesson.reviews.first.id %}" class="btn btn-sm btn-outline-primary ms-1">Edit</a>
+                            <a href="{% url 'delete_review' lesson.reviews.first.id %}" class="btn btn-sm btn-outline-danger ms-1">Delete</a>
+                        {% else %}
+                            <a href="{% url 'leave_review' lesson.id %}" class="btn btn-sm btn-outline-info">Leave Review</a>
+                        {% endif %}
+                    {% elif lesson.status == "booked" %}
+                        <a href="{% url 'reschedule_booking' lesson.id %}" class="btn btn-sm btn-outline-primary">Reschedule</a>
+                        <form method="post" action="{% url 'cancel_booking' lesson.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button class="btn btn-sm btn-outline-danger">Cancel</button>
+                        </form>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if lesson.status == "completed" %}
+                        {% if lesson.review %}
+                            <span class="badge bg-light text-dark border">
+                                ★ {{ lesson.review.rating }}/5
+                            </span>
+                        {% else %}
+                            <a href="{% url 'leave_review' lesson.id %}" class="btn btn-outline-info btn-sm">
+                                Leave Review
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-muted small">Available once Completed</span>
+                    {% endif %}
+                </td>
+
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-center text-muted">No lessons today.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Weekly Summary -->
+<div class="row mt-4 mb-4 px-3">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Weekly Summary</h5>
+                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#weeklySummaryContent">
+                    Toggle
+                </button>
+            </div>
+            <div class="collapse show" id="weeklySummaryContent">
+                <div class="card-body text-center">
+                    <p class="fs-5 text-success mb-1">
+                        <strong>Hours Completed:</strong> {{ weekly_hours }} hour{{ weekly_hours|pluralize }}
+                    </p>
+                    <p class="fs-5 text-primary mb-0">
+                        <strong>Pay this Week:</strong> €{{ weekly_pay }}
+                    </p>
+                    <small class="text-muted">Calculated from completed lessons (1hr = €55)</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

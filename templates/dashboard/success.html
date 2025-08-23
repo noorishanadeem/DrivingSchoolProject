@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text_success">
+    <h2 class="text_success">Payment Successful!</h2>
+    <p>Your payment for booking #{{ payment.booking.id }} was successful</p>
+
+    <div class="card p-3 mt-3 shadow-sm">
+        <h5>Lesson Details</h5>
+        <ul class="list-unstyled">
+            <li><strong>Instructor:</strong> {{ payment.booking.instructor.get_full_name }}</li>
+            <li><strong>Date:</strong> {{ payment.booking.date }}</li>
+            <li><strong>Time:</strong> {{ payment.booking.time }}</li>
+            <li><strong>Amount Paid: </strong> €{{ payment.amount }}</li>
+        </ul>
+    </div>
+
+    <a href="{% url 'student_dashboard' %}" class="btn btn-primary mt-3">Go To Dashboard</a>
+</div>
+
+{% endblock %}

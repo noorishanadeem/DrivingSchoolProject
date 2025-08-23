@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Profile Card -->
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body p-4">
+                    
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="mb-0">
+                            👤 {{ student.get_full_name }}'s Profile
+                        </h3>
+                        <a href="{% url 'edit_student_profile' %}" class="btn btn-sm btn-outline-primary">
+                            ✏️ Edit Profile
+                        </a>
+                    </div>
+
+                    <hr>
+
+                    <!-- Profile Info -->
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded">
+                                <strong>Username:</strong> <br>
+                                <span class="text-muted">{{ student.username }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded">
+                                <strong>Email:</strong> <br>
+                                <span class="text-muted">{{ student.email }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded">
+                                <strong>Date Joined:</strong> <br>
+                                <span class="text-muted">{{ student.date_joined|date:"M d, Y" }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded">
+                                <strong>Status:</strong> <br>
+                                {% if student.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Back Button -->
+                    <div class="text-end mt-4">
+                        <a href="{% url 'student_dashboard' %}" class="btn btn-secondary">
+                            ← Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="mb-0 text-primary fw-bold">
+                            👨‍🏫 {{ instructor.get_full_name }}'s Profile
+                        </h3>
+                        <a href="{% url 'edit_instructor_profile' %}" 
+                           class="btn btn-outline-primary rounded-pill px-3">
+                            ✏️ Edit Profile
+                        </a>
+                    </div>
+
+                    <!-- Profile Details -->
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <strong>👤 Username:</strong> {{ instructor.username }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>📧 Email:</strong> {{ instructor.email }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>📅 Date Joined:</strong> {{ instructor.date_joined|date:"M d, Y" }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>✅ Status:</strong> 
+                            {% if instructor.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+
+                    <!-- Back Button -->
+                    <div class="mt-4 text-end">
+                        <a href="{% url 'view_all_instructors' %}" 
+                           class="btn btn-secondary rounded-pill px-4">
+                            ← Back to Instructor List
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

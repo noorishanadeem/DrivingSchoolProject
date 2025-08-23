@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Edit Form Card -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h4 class="mb-0">Add Instructor Details</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    {{ form.as_p }}
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-between mt-3">
+                    <a href="{% url 'instructor_dashboard' %}" 
+                       class="btn btn-outline-secondary px-4">
+                       Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
