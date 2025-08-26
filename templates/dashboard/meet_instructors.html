@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'dashboard/navbar.html' %}
+
+<div class="container mt-5">
+  <!-- Page Title -->
+  <div class="text-center mb-5">
+    <h2 class="fw-bold text-primary">🚗 Meet Our Instructors</h2>
+    <p class="text-muted">Our friendly, experienced team is here to help you succeed on the road.</p>
+  </div>
+
+  <div class="row g-4">
+    {% for instructor in instructors %}
+    <div class="col-md-4">
+      <div class="card instructor-card border-0 shadow-sm rounded-4 h-100">
+
+        <!-- Profile Picture -->
+        <div class="text-center mt-4">
+          {% if instructor.profile_picture %}
+            <img src="{{ instructor.profile_picture }}" 
+                 class="rounded-circle border border-3 border-white shadow"
+                 style="width: 130px; height: 130px; object-fit: cover;"
+                 alt="{{ instructor.name }}">
+          {% else %}
+            <img src="https://via.placeholder.com/130?text=Instructor"
+                 class="rounded-circle border border-3 border-white shadow"
+                 style="width: 130px; height: 130px; object-fit: cover;"
+                 alt="Default Instructor">
+          {% endif %}
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body text-center px-4">
+          <h5 class="fw-bold text-dark mb-1">{{ instructor.name }}</h5>
+          <small class="text-muted d-block mb-3">Driving Instructor</small>
+
+          <ul class="list-unstyled small text-start mb-3">
+            <li><i class="bi bi-car-front-fill text-primary"></i> <strong>Car:</strong> {{ instructor.car_type }}</li>
+            <li><i class="bi bi-envelope-fill text-primary"></i> <strong>Email:</strong> {{ instructor.email }}</li>
+            <li><i class="bi bi-telephone-fill text-primary"></i> <strong>Phone:</strong> {{ instructor.phone }}</li>
+          </ul>
+
+          <p class="text-muted small">{{ instructor.bio }}</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer bg-light text-center border-0 pb-4">
+          <button class="btn btn-sm btn-primary rounded-pill px-4" 
+                  data-bs-toggle="modal" 
+                  data-bs-target="#contactModal" 
+                  data-instructor-id="{{ instructor.id }}" 
+                  data-instructor-name="{{ instructor.name }}"
+                  data-instructor-email="{{ instructor.email }}">
+            <i class="bi bi-envelope"></i> Contact
+          </button>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <div class="alert alert-info text-center shadow-sm rounded-3">
+        No instructors found.
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Contact Modal -->
+<div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title">Contact <span id="modalInstructorName"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{% url 'contact_instructor' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <input type="hidden" name="instructor_id" id="modalInstructorId">
+
+          <div class="mb-3">
+            <label class="form-label">Your Name</label>
+            <input type="text" name="name" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Your Email</label>
+            <input type="email" name="email" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Message</label>
+            <textarea name="message" class="form-control" rows="4" required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Send Message</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+  .instructor-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .instructor-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+</style>
+
+<script>
+  // Fill modal with correct instructor info
+  const contactModal = document.getElementById('contactModal');
+  contactModal.addEventListener('show.bs.modal', function (event) {
+    let button = event.relatedTarget;
+    let instructorId = button.getAttribute('data-instructor-id');
+    let instructorName = button.getAttribute('data-instructor-name');
+
+    document.getElementById('modalInstructorId').value = instructorId;
+    document.getElementById('modalInstructorName').innerText = instructorName;
+  });
+</script>
+{% endblock %}

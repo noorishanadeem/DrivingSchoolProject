@@ -1,0 +1,70 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+  <div class="container-fluid">
+    
+    <!-- Brand -->
+    <a class="navbar-brand fw-bold" href="#">
+      🚗 Driving School
+    </a>
+
+    <!-- Toggler -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Menu -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        {% if user.is_authenticated %}
+          {% if user.role == 'student' %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'student_dashboard' %}">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'book_lesson' %}">Book Lesson</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'calendar_view' %}">My Calendar</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'student_profile' %}">My Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'meet_instructors' %}">Meet Instructors</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'list_tips' %}">Tips & Tricks</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'student_reviews' %}">My Reviews</a></li>
+
+          {% elif user.role == 'instructor' %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'instructor_dashboard' %}">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'instructor_students_list' %}">My Students</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'instructor_calendar' %}">My Calendar</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'meet_instructors' %}">Meet Instructors</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'add_tip' %}">Add Driving Tip</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'list_tips' %}">Tips & Tricks</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'my_reviews' %}">My Reviews</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'edit_instructor_profile' %}">Edit Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'add_instructor_details' %}">Add Details</a></li>     
+
+          {% elif user.is_staff %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'view_all_students' %}">Students</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'view_all_instructors' %}">Instructors</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'meet_instructors' %}">Meet Instructors</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'list_tips' %}">Tips & Tricks</a></li>
+          {% endif %}
+        {% endif %}
+      </ul>
+
+      <br>
+
+      <!-- Right side (User info + logout) -->
+      <ul class="navbar-nav ms-auto align-items-center">
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            <span class="navbar-text text-white me-3">
+              👋 Hello, {{ user.first_name }}
+            </span>
+          </li>
+
+          <li class="nav-item">
+            <a class="btn btn-sm btn-outline-danger px-3" href="{% url 'logout' %}">
+              Logout
+            </a>
+          </li>
+        {% else %}
+          <li class="nav-item"><a class="btn btn-sm btn-outline-light px-3" href="{% url 'login' %}">Login</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>

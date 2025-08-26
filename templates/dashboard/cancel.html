@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <h2 class="text-danger">❌ Payment Cancelled</h2>
+    <p>Your payment was cancelled. You can retry anytime.</p>
+
+    <a href="{% url 'student_dashboard' %}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% load custom_filters %}
+
+{% include 'dashboard/navbar.html' %}
+
+
+<div class="container mt-4">
+
+    <!-- Summary Row -->
+    {% if reviews %}
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card text-center shadow-sm rounded-4 p-3">
+                <h6 class="text-muted mb-1">⭐ Average Rating</h6>
+                <h3 class="fw-bold text-warning">
+                    {{ reviews|average:"rating"|default:"0" }}/5
+                </h3>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-center shadow-sm rounded-4 p-3">
+                <h6 class="text-muted mb-1">📊 Total Reviews</h6>
+                <h3 class="fw-bold text-primary">{{ reviews|length }}</h3>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Reviews Card -->
+    <div class="card shadow-sm rounded-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 text-primary">📋 Your Lesson Reviews</h4>
+        </div>
+        <div class="card-body">
+
+            {% if reviews %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Instructor</th>
+                                <th>Review</th>
+                                <th>Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for review in reviews %}
+                            <tr>
+                                <td>
+                                    <span class="fw-semibold">{{ review.booking.date }}</span><br>
+                                    <small class="text-muted">{{ review.booking.time }}</small>
+                                </td>
+                                <td>{{ review.instructor.get_full_name|default:review.instructor.username }}</td>
+                                <td>{{ review.comment|default:"—" }}</td>   
+                                <td>
+                                    <span class="badge bg-warning text-dark px-3 py-2">
+                                        ⭐ {{ review.rating }}/5
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <p class="text-muted fs-5 mb-1">😕 You have no reviews yet.</p>
+                    <small class="text-muted">Reviews will appear here once your instructor leaves feedback.</small>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

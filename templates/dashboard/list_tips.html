@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% include 'dashboard/navbar.html' %}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary">🚗 Driving Tips & Tricks</h2>
+    </div>
+
+    <div class="row">
+        {% for tip in tips %}
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <!-- Tip Title -->
+                    <h5 class="card-title fw-bold text-dark mb-2">
+                        {{ tip.title }}
+                    </h5>
+
+                    <!-- Tip Content -->
+                    <p class="card-text text-muted" style="min-height: 70px;">
+                        {{ tip.content|truncatewords:30 }}
+                    </p>
+
+                    <!-- Categories / Tags -->
+                    {% if tip.tags.all %}
+                    <div class="mb-2">
+                        {% for tag in tip.tags.all %}
+                            <span class="badge bg-light text-primary border">{{ tag.name }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Footer -->
+                <div class="card-footer bg-light d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        👨‍🏫 {{ tip.instructor.get_full_name }}
+                    </small>
+                    <small class="text-muted">
+                        📅 {{ tip.created_at|date:"M d, Y" }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <div class="alert alert-info shadow-sm">
+                No tips available yet. 📌
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

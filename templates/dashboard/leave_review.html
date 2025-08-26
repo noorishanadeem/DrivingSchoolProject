@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+    <!-- Card wrapper -->
+    <div class="card shadow-sm rounded-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Leave Review</h4>
+        </div>
+        <div class="card-body">
+            <h5 class="mb-3 text-primary">
+                For {{ booking.student.get_full_name }} 
+                <small class="text-muted">({{ booking.date }} at {{ booking.time }})</small>
+            </h5>
+
+            <!-- Review form -->
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="id_rating" class="form-label">Rating</label>
+                    {{ form.rating }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_comment" class="form-label">Comment</label>
+                    {{ form.comment }}
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-success me-2 px-4">✅ Submit Review</button>
+                    <a href="{% url 'instructor_dashboard' %}" class="btn btn-secondary px-4">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

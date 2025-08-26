@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Student Details</h2>
+    <a href="{% url 'instructor_students_list' %}" class="btn btn-secondary mb-3">Back to Student List</a>
+
+    <!-- Student Info -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5><strong>{{ student.get_full_name }}</strong></h5>
+            <br>
+            <p><strong>Username: </strong> {{ student.username }}</p>
+            <p><strong>Email: </strong> {{ student.email }}</p>
+
+            <!-- average rating -->
+            <p class="mb-0">
+                <strong>Average Rating (you → this student):</strong>
+                {% if avg_rating %}
+                    <span class="badge bg-light text-dark border">★ {{ avg_rating|floatformat:1 }}/5</span>
+                {% else %}
+                    <span class="text-muted">No Reviews yet</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <br>
+
+    <!-- Lesson Summary -->
+    <div class="mb-4">
+        <h5>Lesson Summary</h5>
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Total Lessons
+                <span class="badge bg-primary rounded-pill">{{ bookings|length }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Booked Lessons
+                <span class="badge bg-warning rounded-pill">{{ status_counts.booked|default:0 }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Completed Lessons
+                <span class="badge bg-success rounded-pill">{{ status_counts.completed|default:0 }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Cancelled Lessons
+                <span class="badge bg-danger rounded-pill">{{ status_counts.cancelled|default:0 }}</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- progress goal bar -->
+     <div class="row g-3 mt-3">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 mb-3>Goal Progress</h6>
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>Total Completed: <strong>{{ total_completed }}</strong></small>
+                        <small>Goal: <strong>{{ goal }}</strong></small>
+                    </div>
+                    <div class="progress" style="height: 18px;">
+                        <div class="progress-bar" role="progressbar"
+                            style="width: {{ progress_pct }}%;"
+                            aria-valuenow="{{ progress_pct }}" aria-valuemin="0" aria-valuemax="100">
+                            {{ progress_pct }}%
+                        </div>
+                    </div>
+                    <small class="text-muted d-block mt-2">1 lesson = 1 hour</small>
+                </div>
+            </div>
+        </div>
+     </div>
+
+    <br>
+
+    <!-- Pie chart -->
+    <div class="mb-4">
+        <h5>Lesson Status Chart</h5>
+        <canvas id="lessonStatusChart" width="400" height="250"></canvas>
+    </div>
+
+    <!-- Bar chart for monthly summary -->
+    <div class="mb-4">
+        <h5>Lessons Completed per Month</h5>
+        <canvas id="monthlyLessonsChart" width="400" height="200"></canvas>
+    </div>
+
+    <!-- Lesson Table -->
+    <br>
+    <h5>Lessons with {{ student.get_full_name }}</h5>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Review</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lesson in lessons %}
+            <tr>
+                <td>{{ lesson.date }}</td>
+                <td>{{ lesson.time }}</td>
+                <td>
+                    {% if lesson.status == "booked" %}
+                        <span class="badge bg-warning">{{ lesson.status|capfirst }}</span>
+                    {% elif lesson.status == "completed" %}
+                        <span class="badge bg-success">{{ lesson.status|capfirst }}</span>
+                    {% elif lesson.status == "cancelled" %}
+                        <span class="badge bg-danger">{{ lesson.status|capfirst }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ lesson.status|capfirst }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if lesson.review %}
+                        <span class="badge bg-light text-dark border">★ {{ lesson.review.rating}}/5</span>
+                    {% else %}
+                        <span class="text-muted small">No Review</span>
+                    {% endif%}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3">No Lessons Found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+<!-- Chart.js DataLabels Plugin -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
+<!-- pie chart script -->
+<script>
+    Chart.register(ChartDataLabels);
+    
+    const ctx = document.getElementById('lessonStatusChart').getContext('2d');
+    const lessonStatusChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Booked', 'Completed', 'Cancelled'],
+            datasets: [{
+                label: 'Lesson Status',
+                data: [
+                    {{ status_counts.booked|default:0 }},
+                    {{ status_counts.completed|default:0 }},
+                    {{ status_counts.cancelled|default:0 }}
+                ],
+                backgroundColor: [
+                    'rgba(255, 193, 7, 0.7)',
+                    'rgba(40, 167, 69, 0.7)',
+                    'rgba(220, 53, 69, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(255, 193, 7, 1)',
+                    'rgba(40, 167, 69, 1)',
+                    'rgba(220, 53, 69, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                datalabels: {
+                    formatter: (value, context) => {
+                        const total = context.chart._metasets[0].total;
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        return `${percentage}%`;
+                    },
+                    color: '#fff',
+                    font: {
+                        weight: 'bold'
+                    }
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // Bar chart
+    const barCtx = document.getElementById('monthlyLessonsChart').getContext('2d');
+    new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ months|safe }},
+            datasets: [{
+                label: 'Lessons',
+                data: {{ lesson_counts|safe }},
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+    
+    // Line chart
+    const lineCtx = document.getElementById('lessonsOverTimeChart').getContext('2d');
+    new Chart(lineCtx, {
+        type: 'line',
+        data: {
+            labels: {{ months|safe }},
+            datasets: [{
+                label: 'Lessons Over Time',
+                data: {{ lesson_counts|safe }},
+                fill: false,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+
+
+<!-- Chart.js (only include once on the page) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+  (function () {
+    const labels = {{ progress_labels_json|safe }};
+    const data   = {{ progress_data_json|safe }};
+
+    // Guard: nothing to show
+    if (!labels || !labels.length) return;
+
+    // Line chart
+    const lineEl = document.getElementById('studentProgressLine');
+    if (lineEl) {
+      new Chart(lineEl, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Completed Lessons',
+            data,
+            fill: false,
+            borderWidth: 2,
+            tension: 0.25,
+            pointRadius: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: { mode: 'index', intersect: false }
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0 } }
+          }
+        }
+      });
+    }
+
+    // Bar chart
+    const barEl = document.getElementById('studentProgressBar');
+    if (barEl) {
+      new Chart(barEl, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Completed Lessons',
+            data,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0 } }
+          }
+        }
+      });
+    }
+  })();
+</script>
+
+
+{% endblock %}
+
